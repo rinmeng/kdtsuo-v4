@@ -11,7 +11,7 @@ import type { SocialLink } from '@/types';
 import { socialLinks as SocialFallback } from '@/lib/FallbackData/SocialFallback';
 import Image from 'next/image';
 
-export default function Footer() {
+export function Footer() {
   const getYear = () => {
     const date = new Date();
     return date.getFullYear();

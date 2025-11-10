@@ -142,7 +142,7 @@ function SortableItem({ link }: { link: Link }) {
   );
 }
 
-export default function QuickLinks() {
+export function QuickLinks() {
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();

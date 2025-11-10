@@ -7,7 +7,7 @@ import { BetweenHorizonalStart, Contact, HandCoins, Info } from 'lucide-react';
 import { DiscoverCard } from '@/components/subcomponents';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 
-export default function Discover() {
+export function Discover() {
   const discoverCards = [
     {
       title: 'More About Us',
