@@ -1,26 +1,3 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'about ♥ kdt',
-  description: 'learn more about the kpop dance team at ubco!',
-  openGraph: {
-    images: [
-      {
-        url: '/assets/img/kdtlogosquare.png',
-        width: 1200,
-        height: 630,
-        alt: 'KDT Logo',
-      },
-    ],
-  },
-  twitter: {
-    images: ['/assets/img/kdtlogosquare.png'],
-    card: 'summary_large_image',
-  },
-};
-
-// prettier-ignore
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 'use client';
 import { Activities } from '@/components/';
 import Image from 'next/image';

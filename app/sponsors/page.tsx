@@ -1,26 +1,3 @@
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'sponsors ♥ kdt',
-  description: 'meet our amazing sponsors who support kdt!',
-  openGraph: {
-    images: [
-      {
-        url: '/assets/img/kdtlogosquare.png',
-        width: 1200,
-        height: 630,
-        alt: 'KDT Logo',
-      },
-    ],
-  },
-  twitter: {
-    images: ['/assets/img/kdtlogosquare.png'],
-    card: 'summary_large_image',
-  },
-};
-
-// prettier-ignore
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 'use client';
 import { Spinner } from '@/components/ui';
 import React, { useCallback, useEffect, useState } from 'react';
