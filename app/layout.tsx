@@ -4,7 +4,8 @@ import { ThemeProvider } from 'next-themes';
 import './App.css';
 import { AuthProvider, ToastProvider } from '@/contexts';
 import { Navbar } from '@/components/';
-import { Footer } from '@/components/Footer';
+import { Footer } from '@/components/';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,6 +37,7 @@ export default function RootLayout({
               {children}
               <Navbar />
               <Footer />
+              <Toaster />
             </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
