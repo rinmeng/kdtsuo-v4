@@ -1,5 +1,4 @@
 'use client';
-import { Discover, Footer, QuickLinks } from '@/components';
 import { useTheme } from 'next-themes';
 
 export default function Home() {
@@ -8,7 +7,7 @@ export default function Home() {
     <>
       <div
         id='top'
-        className='animate-fade-in overflow-x-none mx-auto h-auto pt-34 pb-10 md:pt-46'
+        className='animate-fade-in overflow-x-none mx-auto h-screen pt-34 pb-10 md:pt-46'
         style={{
           background: `var(--bg-dotted-${theme === 'dark' ? 'dark' : 'light'})`,
         }}
@@ -18,13 +17,7 @@ export default function Home() {
           <h1>dance classes, events, performances</h1>
           <h1>and meetups for all kpop fans ♥</h1>
         </div>
-        <div className='flex w-full justify-center'>
-          <QuickLinks />
-        </div>
-        <Discover />
       </div>
-
-      <Footer />
     </>
   );
 }
