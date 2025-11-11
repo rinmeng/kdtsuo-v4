@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth, useToast } from '@/hooks';
 import { supabase } from '@/lib';
-import type { ActionType, Link } from '@/types';
+import type { Link } from '@/types';
 import {
   closestCenter,
   DndContext,
@@ -21,7 +21,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Edit, GripVertical, Loader2 } from 'lucide-react';
+import { GripVertical, Loader2, Edit, Trash2, ArrowUpDown, Plus } from 'lucide-react';
 import { IconLinkWide } from '@/components/';
 import { fallbackLinks } from '@/lib/data';
 import {
@@ -31,7 +31,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   Label,
   ScrollArea,
   Select,
@@ -87,8 +86,9 @@ export function LinkTrees() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [manageOpen, setManageOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<ActionType>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [reorderOpen, setReorderOpen] = useState(false);
   const [selectedLinkId, setSelectedLinkId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -162,8 +162,7 @@ export function LinkTrees() {
       }
 
       toast.success('Link order saved successfully!');
-      setManageOpen(false);
-      setSelectedAction(null);
+      setReorderOpen(false);
       await fetchLinks();
     } catch (error) {
       toast.error('Failed to save link order');
@@ -174,15 +173,13 @@ export function LinkTrees() {
   };
 
   const handleLinkSaved = async () => {
-    setManageOpen(false);
-    setSelectedAction(null);
+    setEditOpen(false);
     setSelectedLinkId(null);
     await fetchLinks();
   };
 
   const handleLinkDeleted = async () => {
-    setManageOpen(false);
-    setSelectedAction(null);
+    setDeleteOpen(false);
     setSelectedLinkId(null);
     await fetchLinks();
   };
@@ -197,142 +194,183 @@ export function LinkTrees() {
         md:mt-10 md:max-w-1/2 lg:mx-4`}
     >
       {user && (
-        <div className='mb-4 flex justify-center space-x-2'>
-          <Dialog open={manageOpen} onOpenChange={setManageOpen}>
-            <DialogTrigger asChild>
-              <Button variant='secondary'>
-                <Edit /> Manage Links
+        <div className='mb-4 flex flex-wrap justify-center gap-2'>
+          {/* Add Link Button */}
+          <HomeActions.AddEditLinkDialog
+            mode='add'
+            onLinkSaved={fetchLinks}
+            trigger={
+              <Button variant='default'>
+                <Plus className='h-4 w-4' /> Add
               </Button>
-            </DialogTrigger>
+            }
+          />
+
+          {/* Edit Link Button */}
+          <Dialog open={editOpen} onOpenChange={setEditOpen}>
+            <Button
+              variant='secondary'
+              onClick={() => {
+                setEditOpen(true);
+                setSelectedLinkId(null);
+              }}
+            >
+              <Edit className='h-4 w-4' /> Edit
+            </Button>
             <DialogContent className='sm:max-w-[500px]'>
               <DialogHeader>
-                <DialogTitle>Manage Links</DialogTitle>
+                <DialogTitle>Edit Link</DialogTitle>
               </DialogHeader>
               <ScrollArea type='always' className='max-h-[50vh] pr-4 sm:max-h-[70vh]'>
                 <div className='space-y-4 px-2'>
                   <div className='flex flex-col space-y-2'>
-                    <Label>Select Action</Label>
+                    <Label>Select Link to Edit:</Label>
                     <Select
-                      value={selectedAction || ''}
-                      onValueChange={(value) => {
-                        setSelectedAction(value as ActionType);
-                        if (value === 'add') {
-                          setSelectedLinkId(null);
-                        }
-                      }}
+                      value={selectedLinkId?.toString() || ''}
+                      onValueChange={(value) => setSelectedLinkId(Number(value))}
                     >
                       <SelectTrigger className='w-full'>
-                        <SelectValue placeholder='Select action...' />
+                        <SelectValue placeholder='Select link...' />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value='add'>Add Link</SelectItem>
-                          <SelectItem value='update'>Update Link</SelectItem>
-                          <SelectItem value='delete'>Delete Link</SelectItem>
-                          <SelectItem value='reorder'>Reorder Links</SelectItem>
+                          {links
+                            .filter((link) => link.id !== undefined)
+                            .map((link) => (
+                              <SelectItem key={link.id} value={link.id!.toString()}>
+                                {link.label}
+                              </SelectItem>
+                            ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
                   </div>
-                  {(selectedAction === 'update' || selectedAction === 'delete') && (
-                    <div className='flex flex-col space-y-2'>
-                      <Label>Select Link:</Label>
-                      <Select
-                        value={selectedLinkId?.toString() || ''}
-                        onValueChange={(value) => setSelectedLinkId(Number(value))}
-                      >
-                        <SelectTrigger className='w-full'>
-                          <SelectValue placeholder='Select link...' />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {links
-                              .filter((link) => link.id !== undefined)
-                              .map((link) => (
-                                <SelectItem key={link.id} value={link.id!.toString()}>
-                                  {link.label}
-                                </SelectItem>
-                              ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                  {(selectedAction === 'add' ||
-                    (selectedAction === 'update' && selectedLinkId)) && (
+                  {selectedLinkId && selectedLink && (
                     <HomeActions.AddEditLinkDialog
-                      mode={selectedAction === 'add' ? 'add' : 'edit'}
+                      mode='edit'
                       link={selectedLink}
                       onLinkSaved={handleLinkSaved}
                       open={true}
                       onOpenChange={(open) => {
                         if (!open) {
-                          setSelectedAction(null);
+                          setEditOpen(false);
                           setSelectedLinkId(null);
                         }
                       }}
                     />
                   )}
-                  {selectedAction === 'delete' && selectedLinkId && selectedLink && (
+                </div>
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Link Button */}
+          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <Button
+              variant='secondary'
+              onClick={() => {
+                setDeleteOpen(true);
+                setSelectedLinkId(null);
+              }}
+            >
+              <Trash2 className='h-4 w-4' /> Delete
+            </Button>
+            <DialogContent className='sm:max-w-[500px]'>
+              <DialogHeader>
+                <DialogTitle>Delete Link</DialogTitle>
+              </DialogHeader>
+              <ScrollArea type='always' className='max-h-[50vh] pr-4 sm:max-h-[70vh]'>
+                <div className='space-y-4 px-2'>
+                  <div className='flex flex-col space-y-2'>
+                    <Label>Select Link to Delete:</Label>
+                    <Select
+                      value={selectedLinkId?.toString() || ''}
+                      onValueChange={(value) => setSelectedLinkId(Number(value))}
+                    >
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder='Select link...' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {links
+                            .filter((link) => link.id !== undefined)
+                            .map((link) => (
+                              <SelectItem key={link.id} value={link.id!.toString()}>
+                                {link.label}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {selectedLinkId && selectedLink && (
                     <HomeActions.DeleteLinkDialog
                       link={{ id: selectedLink.id!, label: selectedLink.label }}
                       onLinkDeleted={handleLinkDeleted}
                       trigger={
                         <Button variant='destructive' className='w-full'>
-                          Delete Link
+                          Delete &quot;{selectedLink.label}&quot;
                         </Button>
                       }
                     />
                   )}
-                  {selectedAction === 'reorder' && (
-                    <div className='w-full space-y-4'>
-                      <p className='text-muted-foreground text-sm'>
-                        Drag and drop the links below to reorder them. Click &quot;Save
-                        Order&quot; when done.
-                      </p>
-                      <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <SortableContext
-                          items={links
-                            .filter((link) => link.id !== undefined)
-                            .map((link) => link.id!)}
-                          strategy={verticalListSortingStrategy}
-                        >
-                          <div
-                            className='scrollbar-thin scrollbar-thumb-muted-foreground/50
-                              scrollbar-track-secondary
-                              hover:scrollbar-thumb-muted-foreground
-                              scrollbar-thumb-rounded-full scrollbar-track-rounded-full
-                              flex max-h-96 w-full flex-col space-y-2 overflow-x-hidden
-                              overflow-y-auto pr-2'
-                          >
-                            {links
-                              .filter((link) => link.id !== undefined)
-                              .map((link) => (
-                                <SortableItem key={link.id} link={link} />
-                              ))}
-                          </div>
-                        </SortableContext>
-                      </DndContext>
-                    </div>
-                  )}
                 </div>
               </ScrollArea>
-              {/* DialogFooter for Reorder */}
-              {selectedAction === 'reorder' && (
-                <DialogFooter className='mt-4'>
-                  <Button
-                    onClick={handleSaveOrder}
-                    className='w-full'
-                    disabled={isSubmitting}
+            </DialogContent>
+          </Dialog>
+
+          {/* Reorder Links Button */}
+          <Dialog open={reorderOpen} onOpenChange={setReorderOpen}>
+            <Button variant='secondary' onClick={() => setReorderOpen(true)}>
+              <ArrowUpDown className='h-4 w-4' /> Reorder
+            </Button>
+            <DialogContent className='sm:max-w-[500px]'>
+              <DialogHeader>
+                <DialogTitle>Reorder Links</DialogTitle>
+              </DialogHeader>
+              <ScrollArea type='always' className='max-h-[50vh] pr-4 sm:max-h-[70vh]'>
+                <div className='space-y-4 px-2'>
+                  <p className='text-muted-foreground text-sm'>
+                    Drag and drop the links below to reorder them. Click &quot;Save
+                    Order&quot; when done.
+                  </p>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
                   >
-                    {isSubmitting ? <Loader2 className='animate-spin' /> : 'Save Order'}
-                  </Button>
-                </DialogFooter>
-              )}
+                    <SortableContext
+                      items={links
+                        .filter((link) => link.id !== undefined)
+                        .map((link) => link.id!)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div
+                        className='scrollbar-thin scrollbar-thumb-muted-foreground/50
+                          scrollbar-track-secondary hover:scrollbar-thumb-muted-foreground
+                          scrollbar-thumb-rounded-full scrollbar-track-rounded-full flex
+                          max-h-96 w-full flex-col space-y-2 overflow-x-hidden
+                          overflow-y-auto pr-2'
+                      >
+                        {links
+                          .filter((link) => link.id !== undefined)
+                          .map((link) => (
+                            <SortableItem key={link.id} link={link} />
+                          ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              </ScrollArea>
+              <DialogFooter className='mt-4'>
+                <Button
+                  onClick={handleSaveOrder}
+                  className='w-full'
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 className='animate-spin' /> : 'Save Order'}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
