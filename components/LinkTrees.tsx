@@ -1,11 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useAuth, useToast } from '@/hooks';
 import { supabase } from '@/lib';
 import type { ActionType, Link } from '@/types';
-import { iconMap } from '@/utils';
 import {
   closestCenter,
   DndContext,
@@ -23,21 +21,10 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { DollarSign, Edit, GripVertical, Loader2 } from 'lucide-react';
-import { z } from 'zod';
+import { Edit, GripVertical, Loader2 } from 'lucide-react';
 import { IconLinkWide } from '@/components/';
 import { fallbackLinks } from '@/lib/data';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
   Button,
   Dialog,
   DialogContent,
@@ -45,17 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
   Label,
-  RadioGroup,
-  RadioGroupItem,
   ScrollArea,
   Select,
   SelectContent,
@@ -65,17 +42,7 @@ import {
   SelectValue,
 } from '@/components/ui';
 import { getDelayClass } from '@/utils/animations';
-
-const formSchema = z.object({
-  label: z.string().min(1, 'Label is required'),
-  link: z.url('Please enter a valid URL'),
-  iconType: z.string().min(1, 'Icon type is required'),
-  price: z
-    .number()
-    .min(0, 'Enter a number or leave blank')
-    .optional()
-    .or(z.literal(undefined)),
-});
+import * as HomeActions from '@/components/HomeActions';
 
 function SortableItem({ link }: { link: Link }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -124,16 +91,6 @@ export function LinkTrees() {
   const [selectedAction, setSelectedAction] = useState<ActionType>(null);
   const [selectedLinkId, setSelectedLinkId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const manageForm = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      label: '',
-      link: '',
-      iconType: 'link',
-      price: undefined,
-    },
-  });
 
   const fetchLinks = useCallback(async () => {
     try {
@@ -216,103 +173,23 @@ export function LinkTrees() {
     }
   };
 
-  const handleManageSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsSubmitting(true);
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast.error('You must be logged in to manage links');
-        return;
-      }
-
-      if (selectedAction === 'add') {
-        const currentDate = new Date().toISOString().split('T')[0];
-        const newLink = {
-          ...values,
-          date: currentDate,
-          user_id: user.id,
-        };
-
-        const { data, error } = await supabase.from('links').insert([newLink]).select();
-
-        if (error) throw error;
-        if (data) {
-          setLinks([data[0], ...links]);
-          toast.success(`Added new link: ${values.label}`);
-        }
-      } else if (selectedAction === 'update' && selectedLinkId) {
-        const { error } = await supabase
-          .from('links')
-          .update(values)
-          .eq('id', selectedLinkId);
-
-        if (error) throw error;
-        toast.success(`Updated link: ${values.label}`);
-        await fetchLinks();
-      }
-
-      setManageOpen(false);
-      setSelectedAction(null);
-      setSelectedLinkId(null);
-      manageForm.reset();
-    } catch (error) {
-      toast.error('Failed to manage link');
-      throw error;
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleLinkSaved = async () => {
+    setManageOpen(false);
+    setSelectedAction(null);
+    setSelectedLinkId(null);
+    await fetchLinks();
   };
 
-  const handleManageDelete = async () => {
-    if (!selectedLinkId) return;
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.from('links').delete().eq('id', selectedLinkId);
-
-      if (error) throw error;
-
-      const updatedLinks = links.filter((link) => link.id !== selectedLinkId);
-      if (updatedLinks.length === 0) {
-        setLinks(fallbackLinks);
-      } else {
-        setLinks(updatedLinks);
-      }
-
-      toast.success('Link deleted successfully!');
-      setManageOpen(false);
-      setSelectedAction(null);
-      setSelectedLinkId(null);
-    } catch (error) {
-      toast.error('Failed to delete link');
-      throw error;
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleLinkDeleted = async () => {
+    setManageOpen(false);
+    setSelectedAction(null);
+    setSelectedLinkId(null);
+    await fetchLinks();
   };
 
-  useEffect(() => {
-    if (selectedAction === 'add') {
-      manageForm.reset({
-        label: '',
-        link: '',
-        iconType: 'link',
-        price: undefined,
-      });
-    } else if (selectedAction === 'update' && selectedLinkId) {
-      const link = links.find((l) => l.id === selectedLinkId);
-      if (link) {
-        manageForm.reset({
-          label: link.label,
-          link: link.link,
-          iconType: link.iconType,
-          price: link.price,
-        });
-      }
-    }
-  }, [selectedAction, selectedLinkId, manageForm, links]);
+  const selectedLink = selectedLinkId
+    ? links.find((l) => l.id === selectedLinkId)
+    : undefined;
 
   return (
     <div
@@ -383,165 +260,29 @@ export function LinkTrees() {
                   )}
                   {(selectedAction === 'add' ||
                     (selectedAction === 'update' && selectedLinkId)) && (
-                    <Form {...manageForm}>
-                      <form
-                        id='manage-link-form'
-                        onSubmit={manageForm.handleSubmit(handleManageSubmit)}
-                        className='space-y-2'
-                      >
-                        <FormField
-                          control={manageForm.control}
-                          name='label'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Link Label</FormLabel>
-                              <FormControl>
-                                <Input placeholder='Enter link title' {...field} />
-                              </FormControl>
-                              <FormDescription>
-                                This is the name that will be displayed for the link.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={manageForm.control}
-                          name='link'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>URL</FormLabel>
-                              <FormControl>
-                                <Input placeholder='https://example.com' {...field} />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the full URL including https://
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={manageForm.control}
-                          name='iconType'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Icon Type</FormLabel>
-                              <FormControl>
-                                <RadioGroup
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                  className='flex flex-row flex-wrap justify-start
-                                    md:justify-around'
-                                >
-                                  {Object.keys(iconMap).map((iconKey) => {
-                                    const Icon = iconMap[iconKey].iconComponent;
-                                    const imagePath = iconMap[iconKey].imagePath;
-                                    return (
-                                      <FormItem
-                                        key={iconKey}
-                                        className='flex flex-col items-center space-y-2'
-                                      >
-                                        <FormControl>
-                                          <RadioGroupItem
-                                            value={iconKey}
-                                            id={`manage-${iconKey}`}
-                                            className='sr-only'
-                                          />
-                                        </FormControl>
-                                        <label
-                                          htmlFor={`manage-${iconKey}`}
-                                          className={`hover:bg-accent flex cursor-pointer
-                                          flex-col items-center justify-center rounded-md
-                                          border-2 p-4 ${
-                                            field.value === iconKey
-                                              ? 'border-primary bg-accent'
-                                              : 'border-muted'
-                                          }`}
-                                        >
-                                          {Icon && <Icon strokeWidth={2} size={30} />}
-                                          {imagePath && (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                              src={imagePath}
-                                              alt={iconKey}
-                                              className='h-8 w-8 object-contain'
-                                            />
-                                          )}
-                                        </label>
-                                      </FormItem>
-                                    );
-                                  })}
-                                </RadioGroup>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={manageForm.control}
-                          name='price'
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Price</FormLabel>
-                              <FormControl>
-                                <div className='flex items-center justify-between'>
-                                  <DollarSign className='mr-2' size={25} />
-                                  <Input
-                                    className='no-spinner items-center'
-                                    type='number'
-                                    placeholder='Enter a number or leave blank'
-                                    {...field}
-                                    value={field.value === undefined ? '' : field.value}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      field.onChange(
-                                        val === '' ? undefined : Number(val)
-                                      );
-                                    }}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormDescription>
-                                Leave blank to hide price. Enter 0 for Free, or any
-                                positive value.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </form>
-                    </Form>
+                    <HomeActions.AddEditLinkDialog
+                      mode={selectedAction === 'add' ? 'add' : 'edit'}
+                      link={selectedLink}
+                      onLinkSaved={handleLinkSaved}
+                      open={true}
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setSelectedAction(null);
+                          setSelectedLinkId(null);
+                        }
+                      }}
+                    />
                   )}
-                  {selectedAction === 'delete' && selectedLinkId && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant='destructive'>Delete Link</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Permanently delete the link &quot;
-                            {links.find((l) => l.id === selectedLinkId)?.label}&quot; from
-                            the database? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={handleManageDelete}
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? (
-                              <Loader2 className='animate-spin' />
-                            ) : (
-                              'Delete'
-                            )}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                  {selectedAction === 'delete' && selectedLinkId && selectedLink && (
+                    <HomeActions.DeleteLinkDialog
+                      link={{ id: selectedLink.id!, label: selectedLink.label }}
+                      onLinkDeleted={handleLinkDeleted}
+                      trigger={
+                        <Button variant='destructive' className='w-full'>
+                          Delete Link
+                        </Button>
+                      }
+                    />
                   )}
                   {selectedAction === 'reorder' && (
                     <div className='w-full space-y-4'>
@@ -580,26 +321,6 @@ export function LinkTrees() {
                   )}
                 </div>
               </ScrollArea>
-              {/* DialogFooter for Add/Edit */}
-              {(selectedAction === 'add' ||
-                (selectedAction === 'update' && selectedLinkId)) && (
-                <DialogFooter className='mt-4'>
-                  <Button
-                    type='submit'
-                    form='manage-link-form'
-                    className='w-full'
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className='animate-spin' />
-                    ) : selectedAction === 'add' ? (
-                      'Add Link'
-                    ) : (
-                      'Update Link'
-                    )}
-                  </Button>
-                </DialogFooter>
-              )}
               {/* DialogFooter for Reorder */}
               {selectedAction === 'reorder' && (
                 <DialogFooter className='mt-4'>
