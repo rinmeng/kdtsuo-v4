@@ -1,4 +1,5 @@
 'use client';
+import { LinkTrees } from '@/components/';
 import { useTheme } from 'next-themes';
 
 export default function Home() {
@@ -16,6 +17,9 @@ export default function Home() {
           <h1>all things kpop at ubco!</h1>
           <h1>dance classes, events, performances</h1>
           <h1>and meetups for all kpop fans ♥</h1>
+        </div>
+        <div className='flex w-full justify-center'>
+          <LinkTrees />
         </div>
       </div>
     </>

@@ -1,4 +1,3 @@
-// Use static public/ paths for images
 import { IconMapItem } from '@/types/type';
 import { Link, Music, TicketMinus } from 'lucide-react';
 

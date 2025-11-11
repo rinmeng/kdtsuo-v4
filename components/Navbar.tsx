@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { useAuth, useToast } from '@/hooks';
 import { supabase } from '@/lib';
 import { Loader2, LogIn, LogOut, Menu, MoonIcon, SunIcon } from 'lucide-react';
@@ -26,10 +27,8 @@ import {
 } from '@/components/ui';
 import { IconLink } from './IconLink';
 
-// import LanguageSelector from './LanguageSelector';
-
 function ThemeToggle() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
 
   return (
     <div
@@ -203,7 +202,7 @@ function LogoutDialog() {
   );
 }
 
-export default function Navbar() {
+export function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const items = ['Home', 'About', 'Positions', 'Contacts', 'Sponsors'];
@@ -269,8 +268,6 @@ export default function Navbar() {
               <div className='hidden items-center gap-2 lg:flex'>
                 <div className='flex items-center gap-2 lg:gap-4'>
                   <ThemeToggle />
-                  {/* turned off for now, just playing */}
-                  {/* <LanguageSelector /> */}
                   {items.map((item) => {
                     const path = item.toLowerCase();
                     const itemPath = path === 'home' ? '' : path;
