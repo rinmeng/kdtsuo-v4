@@ -1,6 +1,5 @@
 'use client';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Footer } from '@/components';
 import { useTheme } from 'next-themes';
 import { useAuth, useMediaQuery, useToast } from '@/hooks/';
 import { getTimeSince, supabase } from '@/lib';
