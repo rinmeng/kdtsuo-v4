@@ -27,7 +27,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DollarSign, Edit, GripVertical, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { IconLinkWide } from '@/components/';
-import { fallbackLinks } from '@/lib/fallbacks';
+import { fallbackLinks } from '@/lib/data';
 import {
   AlertDialog,
   AlertDialogAction,

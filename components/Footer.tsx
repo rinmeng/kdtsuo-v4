@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui';
 import { getDelayClass } from '@/utils';
-import { socialLinks } from '@/lib/fallbacks';
+import { SocialLinks } from '@/lib/data';
 import Image from 'next/image';
 
 export function Footer() {
@@ -31,7 +31,7 @@ export function Footer() {
         >
           {/* Left: Text Section */}
           <div className='w-full sm:w-1/2 flex justify-center lg:justify-start'>
-            <CardHeader className='w-full'>
+            <CardHeader>
               <CardTitle>
                 &copy; est. 2023-{getYear()} KDT (&quot;KPop Dance Team&quot;)
               </CardTitle>
@@ -71,7 +71,7 @@ export function Footer() {
             className='w-full sm:w-1/2 flex justify-center lg:justify-end flex-row
               items-center gap-2 flex-wrap'
           >
-            {socialLinks.map((link, index) => (
+            {SocialLinks.map((link, index) => (
               <a
                 key={index}
                 href={link.href}

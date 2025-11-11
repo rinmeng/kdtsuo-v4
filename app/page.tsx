@@ -1,5 +1,5 @@
 'use client';
-import { LinkTrees } from '@/components/';
+import { Discover, LinkTrees } from '@/components/';
 import { useTheme } from 'next-themes';
 
 export default function Home() {
@@ -21,6 +21,7 @@ export default function Home() {
         <div className='flex w-full justify-center'>
           <LinkTrees />
         </div>
+        <Discover />
       </div>
     </>
   );

@@ -5,7 +5,7 @@ const instagramlogo = '/assets/img/icons/instagramlogo.png';
 const maillogo = '/assets/img/icons/maillogo.png';
 import type { SocialLink } from '@/types';
 
-export const socialLinks: SocialLink[] = [
+export const SocialLinks: SocialLink[] = [
   {
     icon: discordlogo,
     href: 'https://discord.com/invite/tbKkvjV2W8',

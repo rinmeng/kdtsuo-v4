@@ -3,3 +3,5 @@ export { LinkTrees } from './LinkTrees';
 export { IconLinkWide } from './IconLinkWide';
 export { Navbar } from './Navbar';
 export { Footer } from './Footer';
+export { Discover } from './Discover';
+export { DiscoverCard } from './DiscoverCard';
