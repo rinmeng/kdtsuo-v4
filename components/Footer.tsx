@@ -33,7 +33,7 @@ export function Footer() {
           <div className='w-full sm:w-1/2 flex justify-center lg:justify-start'>
             <CardHeader>
               <CardTitle>
-                &copy; est. 2023-{getYear()} KDT (&quot;KPop Dance Team&quot;)
+                v4.0 &copy; est. 2023-{getYear()} KDT (&quot;KPop Dance Team&quot;)
               </CardTitle>
               <CardDescription className='text-lg'>
                 <div className='flex items-center space-x-2 text-sm my-2'>
