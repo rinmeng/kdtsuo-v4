@@ -235,7 +235,7 @@ export function Navbar() {
       alt: 'discord',
     },
     {
-      href: 'https://www.github.com/kdtsuo/v3',
+      href: 'https://www.github.com/kdtsuo/v4',
       imgSrc: '/assets/img/icons/githublogo.png',
       alt: 'github',
     },
