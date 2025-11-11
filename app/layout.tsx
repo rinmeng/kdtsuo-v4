@@ -8,6 +8,7 @@ import { Footer } from '@/components/';
 import { Toaster } from '@/components/ui/sonner';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -45,6 +46,14 @@ export default function RootLayout({
             </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
+        <Script id='custom-console-message' strategy='afterInteractive'>
+          {`
+            console.log(
+              "%chey! I'm looking for a future partner to run some business with in the future that has a strong interest with shadcn-ui and react.\\nEmail me at mail@rinm.dev",
+              "color: #fff; background: #111; padding: 8px; font-size: 16px; border-radius: 4px;"
+            );
+          `}
+        </Script>
       </body>
     </html>
   );

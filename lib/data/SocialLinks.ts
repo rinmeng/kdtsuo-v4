@@ -23,7 +23,7 @@ export const SocialLinks: SocialLink[] = [
   },
   {
     icon: githublogo,
-    href: 'https://github.com/kdtsuo/v3',
+    href: 'https://github.com/kdtsuo/v4',
     title: 'GitHub',
   },
   {
