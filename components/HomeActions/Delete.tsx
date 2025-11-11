@@ -30,17 +30,13 @@ import {
   SelectValue,
 } from '@/components/ui';
 
-type DeleteLinkDialogProps = {
+type DeleteProps = {
   links?: Link[];
   onLinkDeleted: () => void;
   trigger?: React.ReactNode;
 };
 
-export function DeleteLinkDialog({
-  links = [],
-  onLinkDeleted,
-  trigger,
-}: DeleteLinkDialogProps) {
+export function Delete({ links = [], onLinkDeleted, trigger }: DeleteProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLinkId, setSelectedLinkId] = useState<number | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);

@@ -48,17 +48,13 @@ const formSchema = z.object({
     .or(z.literal(undefined)),
 });
 
-type AddEditLinkDialogProps = {
+type AddEditProps = {
   onLinkSaved: () => void;
   links?: Link[];
   trigger?: React.ReactNode;
 };
 
-export function AddEditLinkDialog({
-  onLinkSaved,
-  links = [],
-  trigger,
-}: AddEditLinkDialogProps) {
+export function AddEdit({ onLinkSaved, links = [], trigger }: AddEditProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedLinkId, setSelectedLinkId] = useState<number | null>(null);

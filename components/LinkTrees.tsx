@@ -57,7 +57,7 @@ export function LinkTrees() {
       {user && (
         <div className='mb-4 flex flex-wrap justify-center gap-2'>
           {/* Add Link Button */}
-          <HomeActions.AddEditLinkDialog
+          <HomeActions.AddEdit
             onLinkSaved={fetchLinks}
             trigger={
               <Button variant='default'>
@@ -67,7 +67,7 @@ export function LinkTrees() {
           />
 
           {/* Edit Link Button */}
-          <HomeActions.AddEditLinkDialog
+          <HomeActions.AddEdit
             links={links}
             onLinkSaved={fetchLinks}
             trigger={
@@ -78,7 +78,7 @@ export function LinkTrees() {
           />
 
           {/* Delete Link Button */}
-          <HomeActions.DeleteLinkDialog
+          <HomeActions.Delete
             links={links}
             onLinkDeleted={fetchLinks}
             trigger={
@@ -89,7 +89,7 @@ export function LinkTrees() {
           />
 
           {/* Reorder Links Button */}
-          <HomeActions.ReorderLinkDialog
+          <HomeActions.Reorder
             links={links}
             onLinksReordered={fetchLinks}
             trigger={

@@ -32,7 +32,7 @@ import {
   ScrollArea,
 } from '@/components/ui';
 
-type ReorderLinkDialogProps = {
+type ReorderProps = {
   links: Link[];
   onLinksReordered: () => void;
   trigger?: React.ReactNode;
@@ -75,11 +75,11 @@ function SortableItem({ link }: { link: Link }) {
   );
 }
 
-export function ReorderLinkDialog({
+export function Reorder({
   links: initialLinks,
   onLinksReordered,
   trigger,
-}: ReorderLinkDialogProps) {
+}: ReorderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [links, setLinks] = useState<Link[]>(initialLinks);
   const [isSubmitting, setIsSubmitting] = useState(false);
