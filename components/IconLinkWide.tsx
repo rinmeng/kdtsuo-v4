@@ -40,7 +40,9 @@ export function IconLinkWide({
           className
         )}
         onClick={() => {
-          window.open(link, '_blank');
+          if (typeof window !== 'undefined') {
+            window.open(link, '_blank');
+          }
         }}
       >
         <div className='flex w-full'>
