@@ -21,6 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://kdtsuo.vercel.app'),
   title: 'kdt ♥ kpop dance team',
   description:
     'all things kpop at ubco! dance classes, events, performances and meetups for all kpop fans ♥',

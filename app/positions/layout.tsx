@@ -6,10 +6,10 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: '/assets/img/kdtlogosquare.png',
+        url: '/assets/img/kdtlogobanner-positions.webp',
         width: 1200,
         height: 630,
-        alt: 'KDT Logo',
+        alt: 'KDT Positions',
       },
     ],
   },
