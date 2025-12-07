@@ -30,6 +30,7 @@ export type Position = {
   label: string;
   form_url: string;
   is_accepting_responses: boolean;
+  description?: string;
 };
 
 export interface SocialLink {

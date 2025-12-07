@@ -4,56 +4,53 @@ import Image from 'next/image';
 import { useAuth, useToast } from '@/hooks';
 import { supabase } from '@/lib';
 import type { Position } from '@/types';
-import { Clipboard, Edit, Plus, Trash2, X } from 'lucide-react';
+import { Clipboard, Edit, ExternalLink, Plus, Trash2, X } from 'lucide-react';
 import {
   Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Skeleton,
 } from '@/components/ui';
 import * as PositionsActions from '@/components/PositionsActions';
+
 const fallbackPositions: Position[] = [
   {
     label: 'Senior Executive Team',
     form_url: 'https://forms.gle/ufezb8Gut92E7pMeA',
     is_accepting_responses: true,
+    description: 'Lead and manage club operations and strategic initiatives.',
   },
   {
     label: 'Junior Executive Team',
     form_url: 'https://forms.gle/ufezb8Gut92E7pMeA',
     is_accepting_responses: true,
+    description: 'Support executive operations and gain leadership experience.',
   },
   {
     label: 'Dance Instructor',
     form_url: 'https://forms.gle/eciAuTKB63WLQzGg7',
     is_accepting_responses: true,
+    description: 'Teach and choreograph dance routines for club members.',
   },
   {
     label: 'Performance Group',
     form_url: 'https://forms.gle/4CFzbsd3Xn1Lstns8',
     is_accepting_responses: true,
+    description: 'Perform at various events and showcase your dance skills.',
   },
   {
     label: 'Cameraman',
     form_url: 'https://forms.gle/LpXTwzCNKjVZN3De9',
     is_accepting_responses: true,
+    description: 'Capture club events and create engaging visual content.',
   },
 ];
 
 export default function Positions() {
-  const [value, setValue] = useState<string>('');
-  const [formClosed, setFormClosed] = useState<boolean>(false);
   const [positionsData, setPositionsData] = useState<Position[]>(fallbackPositions);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { user } = useAuth();
@@ -86,19 +83,14 @@ export default function Positions() {
     fetchPositionFromDatabase();
   }, [fetchPositionFromDatabase]);
 
-  useEffect(() => {
-    if (value) {
-      const selectedPosition = positionsData.find(
-        (p) => p.label.toLowerCase().replace(/\s+/g, '') === value
-      );
-      setFormClosed(selectedPosition ? !selectedPosition.is_accepting_responses : false);
-    } else {
-      setFormClosed(false);
-    }
-  }, [value, positionsData]);
+  const handleCopyLink = (formUrl: string, label: string) => {
+    navigator.clipboard.writeText(formUrl);
+    toast.success(`Copied ${label} link to clipboard!`);
+  };
 
   return (
     <div className='animate-fade-in overflow-x-hidden'>
+      {/* Hero Section */}
       <div className='relative h-screen w-screen'>
         <Image
           className='object-cover brightness-[0.25]'
@@ -106,7 +98,6 @@ export default function Positions() {
           alt='team'
           fill
           priority
-          quality={90}
         />
 
         <div
@@ -129,163 +120,125 @@ export default function Positions() {
               spot for you.
             </p>
           </div>
-          <div
-            className='fade-in-from-bottom flex justify-center gap-2 flex-wrap delay-200'
-          >
-            {/* Manage Positions Section */}
-            {user && (
-              <>
-                {/* Add Position Button */}
-                <PositionsActions.AddEdit
-                  onPositionSaved={fetchPositionFromDatabase}
-                  trigger={
-                    <Button variant='default'>
-                      <Plus className='h-4 w-4' /> Add
-                    </Button>
-                  }
-                />
 
-                {/* Edit Position Button */}
-                <PositionsActions.AddEdit
-                  positions={positionsData}
-                  onPositionSaved={fetchPositionFromDatabase}
-                  trigger={
-                    <Button variant='secondary'>
-                      <Edit className='h-4 w-4' /> Edit
-                    </Button>
-                  }
-                />
+          {/* Manage Positions Section - Admin Only */}
+          {user && (
+            <div
+              className='fade-in-from-bottom flex justify-center gap-2 flex-wrap
+                delay-200'
+            >
+              {/* Add Position Button */}
+              <PositionsActions.AddEdit
+                onPositionSaved={fetchPositionFromDatabase}
+                trigger={
+                  <Button variant='default'>
+                    <Plus className='h-4 w-4' /> Add
+                  </Button>
+                }
+              />
 
-                {/* Delete Position Button */}
-                <PositionsActions.Delete
-                  positions={positionsData}
-                  onPositionDeleted={fetchPositionFromDatabase}
-                  trigger={
-                    <Button variant='destructive'>
-                      <Trash2 className='h-4 w-4' /> Delete
-                    </Button>
-                  }
-                />
-              </>
-            )}
+              {/* Edit Position Button */}
+              <PositionsActions.AddEdit
+                positions={positionsData}
+                onPositionSaved={fetchPositionFromDatabase}
+                trigger={
+                  <Button variant='secondary'>
+                    <Edit className='h-4 w-4' /> Edit
+                  </Button>
+                }
+              />
 
-            {/* Check Positions Section */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => {
-                    fetchPositionFromDatabase();
-                  }}
-                  className=''
-                  variant='secondary'
-                >
-                  Check Positions
-                </Button>
-              </DialogTrigger>
-              <DialogContent className='w-[350px] lg:w-[425px]'>
-                <DialogHeader>
-                  <DialogTitle>Positions</DialogTitle>
-                </DialogHeader>
-                <DialogDescription>
-                  Select a position that you&apos;re interested in.
-                </DialogDescription>
-                <div className='flex items-center justify-center'>
-                  <Select
-                    value={value}
-                    onValueChange={(newValue) => {
-                      setValue(newValue);
-                    }}
-                    disabled={isLoading}
-                  >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Select position...' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {positionsData.map((position) => {
-                          const positionValue = position.label
-                            .toLowerCase()
-                            .replace(/\s+/g, '');
-
-                          return (
-                            <SelectItem
-                              key={positionValue}
-                              value={positionValue}
-                              disabled={!position.is_accepting_responses}
-                              className={
-                                !position.is_accepting_responses
-                                  ? 'text-red-500 opacity-75'
-                                  : ''
-                              }
-                            >
-                              <div className='flex w-full items-center justify-between'>
-                                {position.label}
-                                {!position.is_accepting_responses && (
-                                  <X className='ml-2 h-4 w-4 text-red-500' />
-                                )}
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* Show message when selected form is closed */}
-                {value && formClosed && (
-                  <div className='flex items-center text-red-500'>
-                    <span className='text-xs'>
-                      We are not accepting applications for this position currently
-                    </span>
-                  </div>
-                )}
-                <DialogFooter>
-                  <DialogClose asChild>
-                    {value && (
-                      <Button
-                        variant='secondary'
-                        className='cursor-pointer border'
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            positionsData.find(
-                              (p) => p.label.toLowerCase().replace(/\s+/g, '') === value
-                            )?.form_url || ''
-                          );
-                          toast.success('Copied link to clipboard!');
-                        }}
-                      >
-                        Copy Link <Clipboard />
-                      </Button>
-                    )}
-                  </DialogClose>
-                  <DialogClose asChild>
-                    {value && (
-                      <Button
-                        asChild
-                        variant='default'
-                        className='cursor-pointer'
-                        disabled={!value}
-                      >
-                        <a
-                          href={
-                            positionsData.find(
-                              (p) => p.label.toLowerCase().replace(/\s+/g, '') === value
-                            )?.form_url || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                        >
-                          Goto Form
-                        </a>
-                      </Button>
-                    )}
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+              {/* Delete Position Button */}
+              <PositionsActions.Delete
+                positions={positionsData}
+                onPositionDeleted={fetchPositionFromDatabase}
+                trigger={
+                  <Button variant='destructive'>
+                    <Trash2 className='h-4 w-4' /> Delete
+                  </Button>
+                }
+              />
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Positions Cards Section */}
+      {isLoading ? (
+        <div className='container mx-auto px-4 py-16'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {[...Array(6)].map((_, index) => (
+              <Card key={index} className='fade-in-from-bottom'>
+                <CardHeader>
+                  <Skeleton className='h-7 w-3/4 mb-2' />
+                  <Skeleton className='h-4 w-full' />
+                </CardHeader>
+                <CardFooter className='flex gap-2'>
+                  <Skeleton className='h-10 flex-1' />
+                  <Skeleton className='h-10 flex-1' />
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className='container mx-auto px-4 py-16'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {positionsData.map((position, index) => (
+              <Card
+                key={index}
+                className={`fade-in-from-bottom ${
+                  !position.is_accepting_responses ? 'opacity-60' : ''
+                }`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardHeader>
+                  <div className='flex items-start justify-between'>
+                    <CardTitle className='text-xl'>{position.label}</CardTitle>
+                    {!position.is_accepting_responses && (
+                      <X className='h-5 w-5 text-red-500 shrink-0' />
+                    )}
+                  </div>
+                  {position.description && (
+                    <CardDescription className='text-base'>
+                      {position.description}
+                    </CardDescription>
+                  )}
+                </CardHeader>
+
+                {!position.is_accepting_responses && (
+                  <CardContent>
+                    <div className='text-sm text-red-500 font-medium'>
+                      Not accepting applications currently
+                    </div>
+                  </CardContent>
+                )}
+
+                <CardFooter className='flex gap-2 flex-wrap'>
+                  <Button
+                    variant='secondary'
+                    className='flex-1'
+                    onClick={() => handleCopyLink(position.form_url, position.label)}
+                    disabled={!position.is_accepting_responses}
+                  >
+                    <Clipboard className='h-4 w-4' /> Copy Link
+                  </Button>
+                  <Button
+                    asChild
+                    variant='default'
+                    className='flex-1'
+                    disabled={!position.is_accepting_responses}
+                  >
+                    <a href={position.form_url} target='_blank' rel='noopener noreferrer'>
+                      <ExternalLink className='h-4 w-4' /> Go to Form
+                    </a>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
