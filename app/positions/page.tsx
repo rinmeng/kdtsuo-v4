@@ -140,39 +140,36 @@ export default function Positions() {
         </div>
       </div>
 
-      {/* Positions Cards Section */}
-      {isLoading ? (
-        <div className='container mx-auto px-4 py-16'>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {[...Array(6)].map((_, index) => (
-              <Card key={index} className='fade-in-from-bottom'>
-                <CardHeader>
-                  <Skeleton className='h-7 w-3/4 mb-2' />
-                  <Skeleton className='h-4 w-full' />
-                </CardHeader>
-                <CardFooter className='flex gap-2'>
-                  <Skeleton className='h-10 flex-1' />
-                  <Skeleton className='h-10 flex-1' />
-                </CardFooter>
-              </Card>
-            ))}
+      <Card className='m-10'>
+        <CardHeader>
+          <CardTitle className='text-4xl text-center font-bold'>Positions</CardTitle>
+          <CardDescription className='text-xl text-center'>
+            Explore the various positions available to join within our club!
+          </CardDescription>
+        </CardHeader>
+        {/* Positions Cards Section */}
+        {isLoading ? (
+          <div className='container mx-auto px-4 py-16'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {[...Array(6)].map((_, index) => (
+                <Card key={index} className='fade-in-from-bottom'>
+                  <CardHeader>
+                    <Skeleton className='h-7 w-3/4 mb-2' />
+                    <Skeleton className='h-4 w-full' />
+                  </CardHeader>
+                  <CardFooter className='flex gap-2'>
+                    <Skeleton className='h-10 flex-1' />
+                    <Skeleton className='h-10 flex-1' />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <Card className='m-10'>
-          <CardHeader>
-            <CardTitle className='text-4xl text-center font-bold'>Positions</CardTitle>
-            <CardDescription className='text-xl text-center'>
-              Explore the various positions available to join within our club!
-            </CardDescription>
-          </CardHeader>
+        ) : (
           <CardContent className='space-y-4'>
             {/* Add Position Button - Admin Only */}
             {user && (
-              <div
-                className='fade-in-from-bottom flex justify-center gap-2 flex-wrap
-                  delay-200'
-              >
+              <div className='fade-in-from-bottom flex justify-center gap-2 flex-wrap'>
                 <PositionsActions.AddEdit
                   onPositionSaved={fetchPositionFromDatabase}
                   trigger={
@@ -282,8 +279,8 @@ export default function Positions() {
               ))}
             </div>
           </CardContent>
-        </Card>
-      )}
+        )}
+      </Card>
     </div>
   );
 }
