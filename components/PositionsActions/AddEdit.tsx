@@ -23,43 +23,31 @@ import {
   FormLabel,
   FormMessage,
   Input,
-  Label,
   ScrollArea,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Switch,
+  Textarea,
 } from '@/components/ui';
 
 const positionSchema = z.object({
   label: z.string().min(1, 'Position name is required'),
   form_url: z.url('Must be a valid URL'),
   is_accepting_responses: z.boolean(),
+  description: z.string().optional(),
 });
 
 type AddEditProps = {
   onPositionSaved: () => void;
-  positions?: Position[];
+  position?: Position;
   trigger?: React.ReactNode;
 };
 
-export function AddEdit({ onPositionSaved, positions = [], trigger }: AddEditProps) {
+export function AddEdit({ onPositionSaved, position, trigger }: AddEditProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPositionLabel, setSelectedPositionLabel] = useState<string>('');
   const { toast } = useToast();
 
-  // Determine mode based on whether positions are provided
-  const mode = positions.length > 0 ? 'edit' : 'add';
-
-  const selectedPosition = selectedPositionLabel
-    ? positions.find(
-        (p) => p.label.toLowerCase().replace(/\s+/g, '') === selectedPositionLabel
-      )
-    : undefined;
+  // Determine mode based on whether a position is provided
+  const mode = position ? 'edit' : 'add';
 
   const form = useForm<z.infer<typeof positionSchema>>({
     resolver: zodResolver(positionSchema),
@@ -67,24 +55,27 @@ export function AddEdit({ onPositionSaved, positions = [], trigger }: AddEditPro
       label: '',
       form_url: '',
       is_accepting_responses: true,
+      description: '',
     },
   });
 
   useEffect(() => {
-    if (selectedPosition) {
+    if (position) {
       form.reset({
-        label: selectedPosition.label || '',
-        form_url: selectedPosition.form_url || '',
-        is_accepting_responses: selectedPosition.is_accepting_responses ?? true,
+        label: position.label || '',
+        form_url: position.form_url || '',
+        is_accepting_responses: position.is_accepting_responses ?? true,
+        description: position.description || '',
       });
     } else {
       form.reset({
         label: '',
         form_url: '',
         is_accepting_responses: true,
+        description: '',
       });
     }
-  }, [selectedPosition, form]);
+  }, [position, form]);
 
   const handleSubmit = async (values: z.infer<typeof positionSchema>) => {
     setIsSubmitting(true);
@@ -106,17 +97,16 @@ export function AddEdit({ onPositionSaved, positions = [], trigger }: AddEditPro
         ]);
         if (error) throw error;
         toast.success('Position added successfully!');
-      } else if (mode === 'edit' && selectedPosition?.label) {
+      } else if (mode === 'edit' && position?.id) {
         const { error } = await supabase
           .from('positions')
           .update(values)
-          .eq('label', selectedPosition.label);
+          .eq('id', position.id);
         if (error) throw error;
         toast.success('Position updated successfully!');
       }
       form.reset();
       setIsOpen(false);
-      setSelectedPositionLabel('');
       onPositionSaved();
     } catch (error) {
       toast.error(
@@ -133,7 +123,6 @@ export function AddEdit({ onPositionSaved, positions = [], trigger }: AddEditPro
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      setSelectedPositionLabel('');
       form.reset();
     }
   };
@@ -148,99 +137,90 @@ export function AddEdit({ onPositionSaved, positions = [], trigger }: AddEditPro
           </DialogTitle>
         </DialogHeader>
         <ScrollArea type='always' className='max-h-[60vh] pr-4'>
-          {mode === 'edit' && (
-            <div className='mb-4 flex flex-col space-y-2'>
-              <Label>Select Position to Edit:</Label>
-              <Select
-                value={selectedPositionLabel}
-                onValueChange={(value) => setSelectedPositionLabel(value)}
-              >
-                <SelectTrigger className='w-full'>
-                  <SelectValue placeholder='Select position...' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {positions.map((position) => {
-                      const positionValue = position.label
-                        .toLowerCase()
-                        .replace(/\s+/g, '');
-                      return (
-                        <SelectItem key={positionValue} value={positionValue}>
-                          {position.label}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          {(mode === 'add' || selectedPositionLabel) && (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-2'>
-                <FormField
-                  control={form.control}
-                  name='label'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Position Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder='Enter position name' {...field} />
-                      </FormControl>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
+              <FormField
+                control={form.control}
+                name='label'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Position Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Enter position name' {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      This is the name that will be displayed for the position.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='description'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='Enter position description...'
+                        className='min-h-[100px]'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Provide a brief description of the position and its responsibilities.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='form_url'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Form URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='https://docs.google.com/forms/d/e/...'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the full URL of the application form.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='is_accepting_responses'
+                render={({ field }) => (
+                  <FormItem
+                    className='flex flex-row items-center justify-between rounded-lg
+                      border p-3 shadow-sm'
+                  >
+                    <div className='space-y-0.5'>
+                      <FormLabel>Accepting Responses</FormLabel>
                       <FormDescription>
-                        This is the name that will be displayed for the position.
+                        Toggle if this position is currently accepting applications
                       </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='form_url'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Form URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder='https://docs.google.com/forms/d/e/...'
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the full URL of the application form.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='is_accepting_responses'
-                  render={({ field }) => (
-                    <FormItem
-                      className='flex flex-row items-center justify-between rounded-lg
-                        border p-3 shadow-sm'
-                    >
-                      <div className='space-y-0.5'>
-                        <FormLabel>Accepting Responses</FormLabel>
-                        <FormDescription>
-                          Toggle if this position is currently accepting applications
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </form>
-            </Form>
-          )}
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
         </ScrollArea>
-        <DialogFooter hidden={mode === 'edit' && !selectedPositionLabel}>
+        <DialogFooter>
           <Button
             type='submit'
-            disabled={isSubmitting || (mode === 'edit' && !selectedPositionLabel)}
+            disabled={isSubmitting}
             onClick={form.handleSubmit(handleSubmit)}
             className='w-full'
           >

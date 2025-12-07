@@ -16,6 +16,7 @@ import {
   Skeleton,
 } from '@/components/ui';
 import * as PositionsActions from '@/components/PositionsActions';
+import Link from 'next/link';
 
 const fallbackPositions: Position[] = [
   {
@@ -23,7 +24,8 @@ const fallbackPositions: Position[] = [
     label: 'Executive Team',
     form_url: 'https://forms.gle/ufezb8Gut92E7pMeA',
     is_accepting_responses: false,
-    description: 'Executive Team runs the club\'s core operations. We plan events and performances, manage finances, handle promotions, coordinate practices, and represent the team with UBCO and external partners. We keep the club organized, visible, and growing.',
+    description:
+      "Executive Team runs the club's core operations. We plan events and performances, manage finances, handle promotions, coordinate practices, and represent the team with UBCO and external partners. We keep the club organized, visible, and growing.",
     created_at: '2025-03-08 07:01:20.911111+00',
   },
   {
@@ -31,7 +33,8 @@ const fallbackPositions: Position[] = [
     label: 'Performance Group',
     form_url: 'https://forms.gle/4CFzbsd3Xn1Lstns8',
     is_accepting_responses: true,
-    description: 'Performance group is for club members who wish to participate in performances and the showcase. Workshops and practice spaces will be provided; however, it will be expected that choreography is self-taught while the Performance Director will focus on formations, detail and quality.',
+    description:
+      'Performance group is for club members who wish to participate in performances and the showcase. Workshops and practice spaces will be provided; however, it will be expected that choreography is self-taught while the Performance Director will focus on formations, detail and quality.',
     created_at: '2025-03-09 07:01:20.911111+00',
   },
   {
@@ -39,7 +42,8 @@ const fallbackPositions: Position[] = [
     label: 'ACE',
     form_url: 'https://forms.gle/jUTrkHMrQkKF2RBKA',
     is_accepting_responses: true,
-    description: 'ACE Group is a performance-focused subunit made up of intermediate-advanced dancers and capable singers who will sing/rap + dance simultaneously, following a K-pop idol training style, but in a positive & supportive environment!',
+    description:
+      'ACE Group is a performance-focused subunit made up of intermediate-advanced dancers and capable singers who will sing/rap + dance simultaneously, following a K-pop idol training style, but in a positive & supportive environment!',
     created_at: '2025-08-14 01:38:13.239365+00',
   },
   {
@@ -47,7 +51,8 @@ const fallbackPositions: Position[] = [
     label: 'Dance Instructor',
     form_url: 'https://forms.gle/eciAuTKB63WLQzGg7',
     is_accepting_responses: true,
-    description: 'Dance Instructors leads weekly classes by teaching choreography selected through member and non-member song voting. They break down routines clearly, guide skill development for all levels, and keep practices structured, fun, and high-energy.',
+    description:
+      'Dance Instructors leads weekly classes by teaching choreography selected through member and non-member song voting. They break down routines clearly, guide skill development for all levels, and keep practices structured, fun, and high-energy.',
     created_at: '2025-03-10 07:01:20.911111+00',
   },
   {
@@ -55,7 +60,8 @@ const fallbackPositions: Position[] = [
     label: 'Cameraman',
     form_url: 'https://forms.gle/LpXTwzCNKjVZN3De9',
     is_accepting_responses: true,
-    description: 'Cameraman leads all photography and videography for the club, capturing classes, performances, and events for marketing and promotion. They manage filming, editing, and visual content to maintain a strong online presence and brand image.',
+    description:
+      'Cameraman leads all photography and videography for the club, capturing classes, performances, and events for marketing and promotion. They manage filming, editing, and visual content to maintain a strong online presence and brand image.',
     created_at: '2025-03-11 07:01:20.911111+00',
   },
 ];
@@ -131,40 +137,17 @@ export default function Positions() {
             </p>
           </div>
 
-          {/* Manage Positions Section - Admin Only */}
+          {/* Add Position Button - Admin Only */}
           {user && (
             <div
               className='fade-in-from-bottom flex justify-center gap-2 flex-wrap
                 delay-200'
             >
-              {/* Add Position Button */}
               <PositionsActions.AddEdit
                 onPositionSaved={fetchPositionFromDatabase}
                 trigger={
                   <Button variant='default'>
-                    <Plus className='h-4 w-4' /> Add
-                  </Button>
-                }
-              />
-
-              {/* Edit Position Button */}
-              <PositionsActions.AddEdit
-                positions={positionsData}
-                onPositionSaved={fetchPositionFromDatabase}
-                trigger={
-                  <Button variant='secondary'>
-                    <Edit className='h-4 w-4' /> Edit
-                  </Button>
-                }
-              />
-
-              {/* Delete Position Button */}
-              <PositionsActions.Delete
-                positions={positionsData}
-                onPositionDeleted={fetchPositionFromDatabase}
-                trigger={
-                  <Button variant='destructive'>
-                    <Trash2 className='h-4 w-4' /> Delete
+                    <Plus className='h-4 w-4' /> Add Position
                   </Button>
                 }
               />
@@ -197,11 +180,42 @@ export default function Positions() {
             {positionsData.map((position, index) => (
               <Card
                 key={index}
-                className={`fade-in-from-bottom ${
-                  !position.is_accepting_responses ? 'opacity-60' : ''
-                }`}
+                className='fade-in-from-bottom relative'
                 style={{ animationDelay: `${index * 100}ms` }}
               >
+                {/* Admin buttons */}
+                {user && (
+                  <div className='absolute top-2 right-2 z-10 flex gap-2'>
+                    <PositionsActions.AddEdit
+                      position={position}
+                      onPositionSaved={fetchPositionFromDatabase}
+                      trigger={
+                        <Button
+                          className='h-8 w-8 p-0'
+                          variant='secondary'
+                          size='sm'
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Edit className='h-4 w-4' />
+                        </Button>
+                      }
+                    />
+                    <PositionsActions.Delete
+                      position={position}
+                      onPositionDeleted={fetchPositionFromDatabase}
+                      trigger={
+                        <Button
+                          className='h-8 w-8 p-0'
+                          variant='destructive'
+                          size='sm'
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Trash2 className='h-4 w-4' />
+                        </Button>
+                      }
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <div className='flex items-start justify-between'>
                     <CardTitle className='text-xl'>{position.label}</CardTitle>
@@ -234,14 +248,18 @@ export default function Positions() {
                     <Clipboard className='h-4 w-4' /> Copy Link
                   </Button>
                   <Button
-                    asChild
                     variant='default'
                     className='flex-1'
                     disabled={!position.is_accepting_responses}
                   >
-                    <a href={position.form_url} target='_blank' rel='noopener noreferrer'>
+                    <Link
+                      href={position.form_url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='flex items-center justify-center gap-2'
+                    >
                       <ExternalLink className='h-4 w-4' /> Go to Form
-                    </a>
+                    </Link>
                   </Button>
                 </CardFooter>
               </Card>
