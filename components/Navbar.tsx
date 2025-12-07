@@ -26,14 +26,15 @@ import {
   SheetTrigger,
 } from '@/components/ui';
 import { IconLink } from './IconLink';
+import { getDelayClass } from '@/utils';
 
-function ThemeToggle() {
+function ThemeToggle({ className = '' }: { className?: string }) {
   const { theme, setTheme } = useTheme();
 
   return (
     <div
       role='button'
-      className='flex rounded-xl p-2 outline'
+      className={`flex rounded-xl p-2 outline ${className}`}
       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
     >
       <SunIcon
@@ -178,7 +179,7 @@ function LogoutDialog() {
             </>
           ) : (
             <>
-              {user?.email?.split('@')[0]}
+              <strong>{user?.email?.split('@')[0]}</strong>
               <LogOut />
             </>
           )}
@@ -188,7 +189,8 @@ function LogoutDialog() {
         <DialogHeader>
           <DialogTitle>Logout</DialogTitle>
           <DialogDescription>
-            Are you sure you want to log out of {user?.email?.split('@')[0]}?
+            Are you sure you want to log out of{' '}
+            <strong>{user?.email?.split('@')[0]}</strong>?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -242,115 +244,114 @@ export function Navbar() {
   ];
 
   return (
-    <div>
-      <div
-        className='fixed top-0 left-1/2 z-50 mt-4 w-11/12 max-w-7xl -translate-x-1/2
-          md:mt-7'
-      >
-        <div
-          className='bg-background/80 w-full rounded-full border shadow-sm
-            backdrop-blur-md'
-        >
-          <div className='flex w-full items-center justify-between px-2 py-4 lg:px-4'>
-            {/* Logo */}
-            <Link href='/'>
-              <Image
-                src='/assets/img/kdtlogotransparent.png'
-                alt='KDT Logo'
-                width={64}
-                height={64}
-                className='h-auto w-16'
-              />
-            </Link>
+    <div
+      className='fixed top-0 left-1/2 z-50 mt-4 w-11/12 max-w-7xl -translate-x-1/2 t500e
+        md:mt-7'
+    >
+      <div className='bg-background/80 w-full rounded-full border shadow-sm
+        backdrop-blur-md'>
+        <div className='flex w-full items-center justify-between px-2 py-4 lg:px-4'>
+          {/* Logo */}
+          <Link href='/'>
+            <Image
+              src='/assets/img/kdtlogotransparent.png'
+              alt='KDT Logo'
+              width={64}
+              height={64}
+              className='h-auto w-16'
+            />
+          </Link>
 
-            <div>
-              {/* Navigation Links - Desktop */}
-              <div className='hidden items-center gap-2 lg:flex'>
-                <div className='flex items-center gap-2 lg:gap-4'>
-                  <ThemeToggle />
-                  {items.map((item) => {
-                    const path = item.toLowerCase();
-                    const itemPath = path === 'home' ? '' : path;
-                    const isActive =
-                      pathname === `/${itemPath}` ||
-                      (pathname === '/' && item === 'Home');
+          <div>
+            {/* Navigation Links - Desktop */}
+            <div className='hidden items-center gap-2 lg:flex'>
+              <div className='flex items-center gap-2 lg:gap-4'>
+                <ThemeToggle className={`fade-in-from-right ${getDelayClass(1)}`} />
+                {items.map((item, i) => {
+                  const path = item.toLowerCase();
+                  const itemPath = path === 'home' ? '' : path;
+                  const isActive =
+                    pathname === `/${itemPath}` || (pathname === '/' && item === 'Home');
 
-                    return (
-                      <Button
-                        key={item}
-                        asChild
-                        variant={isActive ? 'default' : 'outline'}
-                        className='text-base font-medium'
-                      >
-                        <Link href={`/${itemPath}`}>{item}</Link>
-                      </Button>
-                    );
-                  })}
-                </div>
-                <div className='mx-4 flex items-center'>{authSection}</div>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <div className='flex h-auto items-center gap-4 lg:hidden'>
-                <ThemeToggle />
-                {/* turned off for now, just playing */}
-                {/* <LanguageSelector /> */}
-                <Sheet open={open} onOpenChange={setOpen}>
-                  <SheetTrigger asChild>
-                    <div role='button' className='rounded-xl p-2 outline'>
-                      <Menu />
-                    </div>
-                  </SheetTrigger>
-                  <SheetContent side='right'>
-                    <SheetHeader className='flex items-center'>
-                      <SheetTitle>
-                        <Image
-                          src='/assets/img/kdtlogotransparent.png'
-                          alt='KDT Logo'
-                          width={112}
-                          height={112}
-                          className='mx-auto h-auto w-28'
-                        />
-                      </SheetTitle>
-                    </SheetHeader>
-                    <div
-                      className='mx-auto flex w-1/2 flex-col items-center justify-center
-                        space-y-4 text-xl'
+                  return (
+                    <Button
+                      key={item}
+                      asChild
+                      variant={isActive ? 'default' : 'outline'}
+                      className={`text-base font-medium fade-in-from-right
+                      ${getDelayClass(i + 1)}`}
                     >
-                      <div className='flex items-center justify-center'>
-                        <ThemeToggle />
-                      </div>
-                      {items.map((item) => {
-                        const path = item.toLowerCase();
-                        const itemPath = path === 'home' ? '' : path;
-                        const isActive =
-                          pathname === `/${itemPath}` ||
-                          (pathname === '/' && item === 'Home');
-
-                        return (
-                          <Button
-                            key={item}
-                            asChild
-                            variant={isActive ? 'default' : 'ghost'}
-                            onClick={() => setOpen(false)}
-                            className='w-full justify-center text-lg'
-                          >
-                            <Link href={`/${itemPath}`}>{item}</Link>
-                          </Button>
-                        );
-                      })}
-                      <div className='flex flex-col items-center gap-4'>
-                        {authSection}
-                      </div>
-                      <div className='flex w-full justify-center'>
-                        <IconLink links={linkIcons} />
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-
-                <div className='mr-1'></div>
+                      <Link href={`/${itemPath}`}>{item}</Link>
+                    </Button>
+                  );
+                })}
               </div>
+              <div
+                className={`mx-4 flex items-center fade-in-from-right
+                  ${getDelayClass(items.length + 2)}`}
+              >
+                {authSection}
+              </div>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className='flex h-auto items-center gap-4 lg:hidden'>
+              <ThemeToggle />
+              {/* turned off for now, just playing */}
+              {/* <LanguageSelector /> */}
+              <Sheet open={open} onOpenChange={setOpen}>
+                <SheetTrigger asChild>
+                  <div role='button' className='rounded-xl p-2 outline'>
+                    <Menu />
+                  </div>
+                </SheetTrigger>
+                <SheetContent side='right'>
+                  <SheetHeader className='flex items-center'>
+                    <SheetTitle>
+                      <Image
+                        src='/assets/img/kdtlogotransparent.png'
+                        alt='KDT Logo'
+                        width={112}
+                        height={112}
+                        className='mx-auto h-auto w-28'
+                      />
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div
+                    className='mx-auto flex w-1/2 flex-col items-center justify-center
+                      space-y-4 text-xl'
+                  >
+                    <div className='flex items-center justify-center'>
+                      <ThemeToggle />
+                    </div>
+                    {items.map((item) => {
+                      const path = item.toLowerCase();
+                      const itemPath = path === 'home' ? '' : path;
+                      const isActive =
+                        pathname === `/${itemPath}` ||
+                        (pathname === '/' && item === 'Home');
+
+                      return (
+                        <Button
+                          key={item}
+                          asChild
+                          variant={isActive ? 'default' : 'ghost'}
+                          onClick={() => setOpen(false)}
+                          className='w-full justify-center text-lg'
+                        >
+                          <Link href={`/${itemPath}`}>{item}</Link>
+                        </Button>
+                      );
+                    })}
+                    <div className='flex flex-col items-center gap-4'>{authSection}</div>
+                    <div className='flex w-full justify-center'>
+                      <IconLink links={linkIcons} />
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <div className='mr-1'></div>
             </div>
           </div>
         </div>
