@@ -218,20 +218,28 @@ export default function Positions() {
                 )}
                 <CardHeader>
                   <div className='flex items-start justify-between'>
-                    <CardTitle className='text-xl'>{position.label}</CardTitle>
-                    {!position.is_accepting_responses && (
-                      <X className='h-5 w-5 text-red-500 shrink-0' />
-                    )}
+                    <CardTitle
+                      className={`text-xl
+                        ${!position.is_accepting_responses ? 'opacity-50' : ''}`}
+                    >
+                      {position.label}
+                    </CardTitle>
                   </div>
                   {position.description && (
-                    <CardDescription className='text-base'>
+                    <CardDescription
+                      className={`text-base
+                        ${!position.is_accepting_responses ? 'opacity-50' : ''}`}
+                    >
                       {position.description}
                     </CardDescription>
                   )}
                 </CardHeader>
 
                 {!position.is_accepting_responses && (
-                  <CardContent>
+                  <CardContent className='flex gap-2'>
+                    {!position.is_accepting_responses && (
+                      <X className='h-5 w-5 text-red-500 shrink-0' />
+                    )}
                     <div className='text-sm text-red-500 font-medium'>
                       Not accepting applications currently
                     </div>
@@ -243,14 +251,14 @@ export default function Positions() {
                     variant='secondary'
                     className='flex-1'
                     onClick={() => handleCopyLink(position.form_url, position.label)}
-                    disabled={!position.is_accepting_responses}
+                    disabled={!position.is_accepting_responses && !user}
                   >
                     <Clipboard className='h-4 w-4' /> Copy Link
                   </Button>
                   <Button
                     variant='default'
                     className='flex-1'
-                    disabled={!position.is_accepting_responses}
+                    disabled={!position.is_accepting_responses && !user}
                   >
                     <Link
                       href={position.form_url}
