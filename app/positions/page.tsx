@@ -17,6 +17,7 @@ import {
 } from '@/components/ui';
 import * as PositionsActions from '@/components/PositionsActions';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 
 const fallbackPositions: Position[] = [
   {
@@ -71,6 +72,7 @@ export default function Positions() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { theme } = useTheme();
 
   const fetchPositionFromDatabase = useCallback(async () => {
     try {
@@ -154,7 +156,12 @@ export default function Positions() {
       </div>
       <div id='positions-section'></div>
 
-      <Card className='mx-4 my-16'>
+      <Card
+        className='lg:mx-10 mx-4 my-12'
+        style={{
+          background: `var(--bg-xless-dotted-${theme === 'dark' ? 'dark' : 'light'})`,
+        }}
+      >
         <CardHeader>
           <CardTitle className='text-4xl text-center font-bold'>Positions</CardTitle>
           <CardDescription className='text-xl text-center'>
