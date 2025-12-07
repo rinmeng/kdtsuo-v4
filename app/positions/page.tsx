@@ -154,7 +154,7 @@ export default function Positions() {
       </div>
       <div id='positions-section'></div>
 
-      <Card className='m-10'>
+      <Card className='mx-4 my-16'>
         <CardHeader>
           <CardTitle className='text-4xl text-center font-bold'>Positions</CardTitle>
           <CardDescription className='text-xl text-center'>
