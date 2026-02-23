@@ -6,16 +6,8 @@ import { DiscoverLinks } from '@/lib/data';
 
 export function Discover() {
   return (
-    <Card className='fade-in-from-bottom mx-4 text-center'>
-      <CardHeader>
-        <CardTitle>
-          <div className='fade-in-from-bottom text-3xl font-bold md:text-6xl'>
-            Discover More
-          </div>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className='flex flex-wrap justify-center gap-6'>
+    <Card className='fade-in-from-bottom mx-4 text-center w-auto'>
+      <CardContent className='flex justify-center gap-4'>
         {DiscoverLinks.map((card, index) => (
           <DiscoverCard
             key={`${card.title}-${index}`}
@@ -25,7 +17,7 @@ export function Discover() {
             image={card.image}
             link={card.link}
             isOpen={card.isOpen}
-            className={`fade-in-from-bottom aspect-video w-full lg:w-1/3
+            className={`fade-in-from-bottom aspect-video w-full lg:w-1/4
             ${getDelayClass(index)}`}
           />
         ))}
