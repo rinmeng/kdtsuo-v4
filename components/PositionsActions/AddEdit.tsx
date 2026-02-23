@@ -88,35 +88,22 @@ export function AddEdit({ onPositionSaved, position, trigger }: AddEditProps) {
             : JSON.stringify({ id: position?.id, ...values }),
       });
 
-      let result: any = {};
-      try {
-        result = await res.json();
-      } catch (e) {
-        const raw = await res.text().catch(() => '<no body>');
-        console.error('Positions API returned non-JSON response', res.status, raw);
-        toast.error('Server error: see console for details');
-        return;
-      }
-
       if (!res.ok) {
-        const message = result?.error || result?.message || (mode === 'add' ? 'Failed to add position.' : 'Failed to update position.');
+        const message = (mode === 'add' ? 'Failed to add position.' : 'Failed to update position.');
         toast.error(message + ' Please try again.');
-        console.error('Positions API error', res.status, message, result);
         return;
       }
 
-      console.debug('Positions API result', result);
       toast.success(mode === 'add' ? 'Position added successfully!' : 'Position updated successfully!');
       form.reset();
       setIsOpen(false);
       onPositionSaved();
-    } catch (error) {
+    } catch {
       toast.error(
         mode === 'add'
           ? 'Failed to add position. Please try again.'
           : 'Failed to update position. Please try again.'
       );
-      throw error;
     } finally {
       setIsSubmitting(false);
     }
