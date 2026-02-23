@@ -15,7 +15,7 @@ export function Discover() {
         </CardTitle>
       </CardHeader>
 
-       <CardContent className='flex sm:flex-nowrap flex-wrap justify-center gap-4'>
+       <CardContent className='flex flex-wrap justify-center gap-4'>
         {DiscoverLinks.map((card, index) => (
           <DiscoverCard
             key={`${card.title}-${index}`}
@@ -25,7 +25,7 @@ export function Discover() {
             image={card.image}
             link={card.link}
             isOpen={card.isOpen}
-            className={`fade-in-from-bottom aspect-video w-full lg:w-1/4
+            className={`fade-in-from-bottom aspect-video w-full xl:w-1/4
             ${getDelayClass(index)}`}
           />
         ))}
