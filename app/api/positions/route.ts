@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       .from('positions')
       .insert([body])
       .select();
+    console.log('inserting from backend api route');
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
