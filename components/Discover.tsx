@@ -6,8 +6,16 @@ import { DiscoverLinks } from '@/lib/data';
 
 export function Discover() {
   return (
-    <Card className='fade-in-from-bottom mx-4 text-center w-auto'>
-      <CardContent className='flex justify-center gap-4'>
+    <Card className='fade-in-from-bottom mx-4 text-center'>
+      <CardHeader>
+        <CardTitle>
+          <div className='fade-in-from-bottom text-3xl font-bold md:text-5xl'>
+            Discover More
+          </div>
+        </CardTitle>
+      </CardHeader>
+
+       <CardContent className='flex sm:flex-nowrap flex-wrap justify-center gap-4'>
         {DiscoverLinks.map((card, index) => (
           <DiscoverCard
             key={`${card.title}-${index}`}
