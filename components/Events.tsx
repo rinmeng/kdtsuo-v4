@@ -128,12 +128,12 @@ export function Events() {
   const { upcomingEvents, pastEvents } = eventsData;
 
   return (
-    <Card className="w-full">
+    <Card className="w-full max-w-7xl mx-auto border mb-8">
       <CardContent>
         {/* Upcoming Events Section */}
         {upcomingEvents.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8">Upcoming Events</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming Events</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {upcomingEvents.map((event) => (
                 <EventCard key={event.id} event={event} />
