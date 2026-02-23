@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks';
-import { supabase } from '@/lib';
 import type { Position } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -80,31 +79,34 @@ export function AddEdit({ onPositionSaved, position, trigger }: AddEditProps) {
   const handleSubmit = async (values: z.infer<typeof positionSchema>) => {
     setIsSubmitting(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const res = await fetch('/api/positions', {
+        method: mode === 'add' ? 'POST' : 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:
+          mode === 'add'
+            ? JSON.stringify(values)
+            : JSON.stringify({ id: position?.id, ...values }),
+      });
 
-      if (!user) {
-        toast.error('You must be logged in to manage positions');
+      let result: any = {};
+      try {
+        result = await res.json();
+      } catch (e) {
+        const raw = await res.text().catch(() => '<no body>');
+        console.error('Positions API returned non-JSON response', res.status, raw);
+        toast.error('Server error: see console for details');
         return;
       }
 
-      if (mode === 'add') {
-        const { error } = await supabase.from('positions').insert([
-          {
-            ...values,
-          },
-        ]);
-        if (error) throw error;
-        toast.success('Position added successfully!');
-      } else if (mode === 'edit' && position?.id) {
-        const { error } = await supabase
-          .from('positions')
-          .update(values)
-          .eq('id', position.id);
-        if (error) throw error;
-        toast.success('Position updated successfully!');
+      if (!res.ok) {
+        const message = result?.error || result?.message || (mode === 'add' ? 'Failed to add position.' : 'Failed to update position.');
+        toast.error(message + ' Please try again.');
+        console.error('Positions API error', res.status, message, result);
+        return;
       }
+
+      console.debug('Positions API result', result);
+      toast.success(mode === 'add' ? 'Position added successfully!' : 'Position updated successfully!');
       form.reset();
       setIsOpen(false);
       onPositionSaved();
